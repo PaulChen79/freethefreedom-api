@@ -1,4 +1,4 @@
-const { System } = require('../models')
+const { System, Course } = require('../models')
 const { StatusCodes } = require('http-status-codes')
 
 const adminController = {
@@ -69,6 +69,96 @@ const adminController = {
       return res.status(StatusCodes.OK).json({
         status: 'success',
         message: '課程系統已刪除'
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  createCourse: async (req, res, next) => {
+    try {
+      const { name } = req.body
+      const course = await Course.findOne({ where: { name } })
+      if (course) {
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+          status: 'error',
+          message: '課程已存在'
+        })
+      }
+      const newCourse = await Course.create(req.body)
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '課程已創建',
+        data: { course: newCourse }
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  getCourses: async (req, res, next) => {
+    try {
+      const courses = await Course.findAll({ raw: true, nest: true, include: [{ model: System, attributes: ['name'] }] })
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '成功取得所有課程',
+        data: courses
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  getCourse: async (req, res, next) => {
+    try {
+      const courseId = req.params.id
+      const course = await Course.findByPk(courseId, { raw: true, nest: true, include: [{ model: System, attributes: ['name'] }] })
+      if (!course) {
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+          status: 'error',
+          message: '課程不存在'
+        })
+      }
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '成功取得課程',
+        data: { course }
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  updateCourse: async (req, res, next) => {
+    try {
+      const courseId = req.params.id
+      const course = await Course.findByPk(courseId)
+      if (!course) {
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+          status: 'error',
+          message: '課程不存在'
+        })
+      }
+      const updateCourse = await course.update(req.body)
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '成功編輯課程',
+        data: { course: updateCourse }
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  deleteCourse: async (req, res, next) => {
+    try {
+      const courseId = req.params.id
+      const course = await Course.findByPk(courseId)
+      if (!course) {
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+          status: 'error',
+          message: '課程不存在'
+        })
+      }
+      await course.destroy()
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '課程已刪除'
       })
     } catch (error) {
       next(error)

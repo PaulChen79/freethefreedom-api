@@ -1,9 +1,11 @@
+const { StatusCodes } = require('http-status-codes')
+
 module.exports = {
   generalErrorHandler (err, req, res, next) {
     if (err instanceof Error) {
-      res.json({ status: 'error', message: `${err.name}: ${err.message}` })
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ status: 'error', message: `${err.name}: ${err.message}` })
     } else {
-      res.json({ status: 'error', message: `${err}` })
+      res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ status: 'error', message: `${err}` })
     }
     next(err)
   }
