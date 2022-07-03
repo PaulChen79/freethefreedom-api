@@ -68,7 +68,7 @@ const userController = {
 
       const hashedPassword = await bcrypt.hash(password, 10)
       const user = await User.create({ username, email, password: hashedPassword })
-      return res.status(StatusCodes.NOT_ACCEPTABLE)
+      return res.status(StatusCodes.OK)
         .json({
           status: 'success',
           message: '註冊成功',
