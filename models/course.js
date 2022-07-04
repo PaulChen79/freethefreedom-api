@@ -22,6 +22,7 @@ module.exports = (sequelize, DataTypes) => {
     qualification: DataTypes.ARRAY(DataTypes.STRING),
     content: DataTypes.ARRAY(DataTypes.STRING),
     exam: DataTypes.ARRAY(DataTypes.STRING),
+    willLearn: DataTypes.ARRAY(DataTypes.STRING),
     price: DataTypes.INTEGER,
     priceDesc: DataTypes.STRING
   }, {

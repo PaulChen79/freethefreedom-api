@@ -29,6 +29,9 @@ module.exports = {
       exam: {
         type: Sequelize.ARRAY(Sequelize.STRING)
       },
+      will_learn: {
+        type: Sequelize.ARRAY(Sequelize.STRING)
+      },
       price: {
         type: Sequelize.INTEGER
       },
