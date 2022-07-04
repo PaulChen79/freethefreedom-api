@@ -32,17 +32,30 @@ const scheduleController = {
   getSchedule: async (req, res, next) => {
     try {
       const scheduleId = req.params.id
-      const schedule = await Schedule.findByPk(scheduleId, { raw: true, nest: true, include: [Course] })
+      let schedule = await Schedule.findByPk(scheduleId, {
+        nest: true,
+        include: [
+          Course,
+          { model: User, as: 'UserReservedSchedules' }
+        ]
+      })
       if (!schedule) {
         return res.status(StatusCodes.NOT_FOUND).json({
           status: 'error',
           message: '開課資訊不存在'
         })
       }
+      schedule = await schedule.toJSON()
+      schedule.UserReservedSchedules = await schedule.UserReservedSchedules.map(user => {
+        return {
+          id: user.id,
+          username: user.username
+        }
+      })
       return res.status(StatusCodes.OK).json({
         status: 'success',
         message: '成功取得開課資訊',
-        data: { schedule }
+        data: schedule
       })
     } catch (error) {
       next(error)
