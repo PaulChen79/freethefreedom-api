@@ -1,10 +1,25 @@
-const { Schedule, Course, ReservedSchedule } = require('../models')
+const { Schedule, Course, ReservedSchedule, User } = require('../models')
 const { StatusCodes } = require('http-status-codes')
 
 const scheduleController = {
   getSchedules: async (req, res, next) => {
     try {
-      const schedules = await Schedule.findAll({ raw: true, nest: true, include: [Course] })
+      let schedules = await Schedule.findAll({
+        nest: true,
+        include: [
+          Course,
+          { model: User, as: 'UserReservedSchedules' }
+        ]
+      })
+      schedules = await schedules.map(schedule => ({
+        ...schedule.toJSON(),
+        UserReservedSchedules: schedule.UserReservedSchedules.map(user => {
+          return {
+            id: user.id,
+            username: user.username
+          }
+        })
+      }))
       return res.status(StatusCodes.OK).json({
         status: 'success',
         message: '成功取得所有開課資訊',
