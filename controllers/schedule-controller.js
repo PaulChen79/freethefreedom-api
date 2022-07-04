@@ -3,62 +3,107 @@ const { StatusCodes } = require('http-status-codes')
 
 const scheduleController = {
   getSchedules: async (req, res, next) => {
-    try {
-      let schedules = await Schedule.findAll({
-        nest: true,
-        include: [
-          Course,
-          { model: User, as: 'UserReservedSchedules' }
-        ]
-      })
-      schedules = await schedules.map(schedule => ({
-        ...schedule.toJSON(),
-        UserReservedSchedules: schedule.UserReservedSchedules.map(user => {
+    if (req.user) {
+      try {
+        let schedules = await Schedule.findAll({
+          nest: true,
+          include: [
+            Course,
+            { model: User, as: 'UserReservedSchedules' }
+          ]
+        })
+        schedules = await schedules.map(schedule => ({
+          ...schedule.toJSON(),
+          UserReservedSchedules: schedule.UserReservedSchedules.map(user => {
+            return {
+              id: user.id,
+              username: user.username
+            }
+          })
+        }))
+        return res.status(StatusCodes.OK).json({
+          status: 'success',
+          message: '成功取得所有開課資訊',
+          data: schedules
+        })
+      } catch (error) {
+        next(error)
+      }
+    } else {
+      try {
+        const schedules = await Schedule.findAll({
+          raw: true,
+          nest: true,
+          include: [
+            { model: Course, attributes: ['id', 'name'] }
+          ]
+        })
+        return res.status(StatusCodes.OK).json({
+          status: 'success',
+          message: '成功取得所有開課資訊',
+          data: schedules
+        })
+      } catch (error) {
+        next(error)
+      }
+    }
+  },
+  getSchedule: async (req, res, next) => {
+    if (req.user) {
+      try {
+        const scheduleId = req.params.id
+        let schedule = await Schedule.findByPk(scheduleId, {
+          nest: true,
+          include: [
+            Course,
+            { model: User, as: 'UserReservedSchedules' }
+          ]
+        })
+        if (!schedule) {
+          return res.status(StatusCodes.NOT_FOUND).json({
+            status: 'error',
+            message: '開課資訊不存在'
+          })
+        }
+        schedule = await schedule.toJSON()
+        schedule.UserReservedSchedules = await schedule.UserReservedSchedules.map(user => {
           return {
             id: user.id,
             username: user.username
           }
         })
-      }))
-      return res.status(StatusCodes.OK).json({
-        status: 'success',
-        message: '成功取得所有開課資訊',
-        data: schedules
-      })
-    } catch (error) {
-      next(error)
-    }
-  },
-  getSchedule: async (req, res, next) => {
-    try {
-      const scheduleId = req.params.id
-      let schedule = await Schedule.findByPk(scheduleId, {
-        nest: true,
-        include: [
-          Course,
-          { model: User, as: 'UserReservedSchedules' }
-        ]
-      })
-      if (!schedule) {
-        return res.status(StatusCodes.NOT_FOUND).json({
-          status: 'error',
-          message: '開課資訊不存在'
+        return res.status(StatusCodes.OK).json({
+          status: 'success',
+          message: '成功取得開課資訊',
+          data: schedule
         })
+      } catch (error) {
+        next(error)
       }
-      schedule = await schedule.toJSON()
-      schedule.UserReservedSchedules = await schedule.UserReservedSchedules.map(user => {
-        return {
-          id: user.id,
-          username: user.username
+    } else {
+      try {
+        const scheduleId = req.params.id
+        const schedule = await Schedule.findByPk(scheduleId, {
+          raw: true,
+          nest: true,
+          include: [
+            { model: Course, attributes: ['id', 'name'] }
+          ]
+        })
+        if (!schedule) {
+          return res.status(StatusCodes.NOT_FOUND).json({
+            status: 'error',
+            message: '開課資訊不存在'
+          })
         }
-      })
-      return res.status(StatusCodes.OK).json({
-        status: 'success',
-        message: '成功取得開課資訊',
-        data: schedule
-      })
-    } catch (error) {
-      next(error)
+        return res.status(StatusCodes.OK).json({
+          status: 'success',
+          message: '成功取得開課資訊',
+          data: schedule
+        })
+      } catch (error) {
+        next(error)
+      }
     }
   },
   reserveSchedule: async (req, res, next) => {
