@@ -1,4 +1,4 @@
-const { User } = require('../models')
+const { User, UserInfo } = require('../models')
 const bcrypt = require('bcryptjs')
 const { StatusCodes } = require('http-status-codes')
 const jwt = require('jsonwebtoken')
@@ -129,6 +129,47 @@ const userController = {
             isAdmin: user.isAdmin
           }
         }
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  getProfile: async (req, res, next) => {
+    try {
+      const userId = req.params.id
+      const user = await User.findByPk(userId, { raw: true, nest: true, include: [UserInfo] })
+      if (!user) {
+        return res.status(StatusCodes.NOT_FOUND)
+          .json({
+            status: 'error',
+            message: '使用者不存在'
+          })
+      }
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '成功取得使用者資訊',
+        data: user
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  editProfile: async (req, res, next) => {
+    try {
+      const userId = req.params.id
+      const user = await User.findByPk(userId, { nest: true, include: [UserInfo] })
+      if (!user) {
+        return res.status(StatusCodes.NOT_FOUND)
+          .json({
+            status: 'error',
+            message: '使用者不存在'
+          })
+      }
+      const updateUserData = await user.update(req.body)
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '成功編輯使用者資訊',
+        data: updateUserData
       })
     } catch (error) {
       next(error)
