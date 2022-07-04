@@ -7,7 +7,7 @@ const authenticated = (req, res, next) => {
     if (!user) {
       return res.status(StatusCodes.UNAUTHORIZED).json({
         status: 'error',
-        message: 'Authentication error: no user'
+        message: '無使用者權限'
       })
     }
     req.user = { ...user.dataValues }

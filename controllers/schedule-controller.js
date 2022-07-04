@@ -1,4 +1,4 @@
-const { Schedule, Course } = require('../models')
+const { Schedule, Course, ReservedSchedule } = require('../models')
 const { StatusCodes } = require('http-status-codes')
 
 const scheduleController = {
@@ -34,11 +34,32 @@ const scheduleController = {
     }
   },
   reserveSchedule: async (req, res, next) => {
-    // try {
-    //   const scheduleId = req.params.id
-    // } catch (error) {
-    //   next(error)
-    // }
+    try {
+      const scheduleId = req.params.id
+      const userId = req.user.id
+      const schedule = await Schedule.findByPk(scheduleId)
+      if (schedule.maxPeople <= 0) {
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+          status: 'error',
+          message: '開課人數已滿'
+        })
+      }
+      const reserveSchedule = await ReservedSchedule.findOne({ where: { userId, scheduleId } })
+      if (reserveSchedule) {
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+          status: 'error',
+          message: '你已報名過此課程'
+        })
+      }
+      await ReservedSchedule.create({ userId, scheduleId })
+      await schedule.decrement('maxPeople')
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '你已成功報名此課程'
+      })
+    } catch (error) {
+      next(error)
+    }
   }
 }
 

@@ -12,7 +12,7 @@ module.exports = (sequelize, DataTypes) => {
     static associate (models) {
       User.hasOne(models.UserInfo, { foreignKey: 'userId' })
       User.belongsToMany(models.Schedule, {
-        through: 'ReservedSchedule',
+        through: models.ReservedSchedule,
         foreignKey: 'userId',
         as: 'SchedulesAreReserved'
       })

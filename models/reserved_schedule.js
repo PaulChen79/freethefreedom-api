@@ -18,8 +18,8 @@ module.exports = (sequelize, DataTypes) => {
     scheduleId: DataTypes.INTEGER
   }, {
     sequelize,
-    modelName: 'Reserved_Schedule',
-    tableName: 'Reserved_Schedules',
+    modelName: 'ReservedSchedule',
+    tableName: 'ReservedSchedules',
     underscored: true
   })
   return ReservedSchedule
