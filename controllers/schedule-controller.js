@@ -3,12 +3,13 @@ const { StatusCodes } = require('http-status-codes')
 
 const scheduleController = {
   getSchedules: async (req, res, next) => {
+    console.log(req.user)
     if (req.user) {
       try {
         let schedules = await Schedule.findAll({
           nest: true,
           include: [
-            Course,
+            { model: Course, attributes: ['id', 'name'] },
             { model: User, as: 'UserReservedSchedules' }
           ]
         })
@@ -55,7 +56,7 @@ const scheduleController = {
         let schedule = await Schedule.findByPk(scheduleId, {
           nest: true,
           include: [
-            Course,
+            { model: Course, attributes: ['id', 'name'] },
             { model: User, as: 'UserReservedSchedules' }
           ]
         })

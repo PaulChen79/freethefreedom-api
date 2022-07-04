@@ -15,6 +15,18 @@ const authenticated = (req, res, next) => {
   })(req, res, next)
 }
 
+const checkIfUser = (req, res, next) => {
+  passport.authenticate('jwt', { session: false }, (error, user) => {
+    if (error) return next(error)
+    if (!user) {
+      req.user = null
+      return next()
+    }
+    req.user = { ...user.dataValues }
+    next()
+  })(req, res, next)
+}
+
 const authenticatedAdmin = (req, res, next) => {
   if (!req.user) {
     return res.status(StatusCodes.UNAUTHORIZED).json({
@@ -34,5 +46,6 @@ const authenticatedAdmin = (req, res, next) => {
 
 module.exports = {
   authenticated,
-  authenticatedAdmin
+  authenticatedAdmin,
+  checkIfUser
 }
