@@ -20,6 +20,9 @@ module.exports = {
       line_id: {
         type: Sequelize.STRING
       },
+      user_id: {
+        type: Sequelize.INTEGER
+      },
       emergency_contact: {
         type: Sequelize.STRING
       },

@@ -1,4 +1,4 @@
-const { System, Course } = require('../models')
+const { System, Course, User, UserInfo } = require('../models')
 const { StatusCodes } = require('http-status-codes')
 
 const adminController = {
@@ -40,7 +40,7 @@ const adminController = {
         })
       }
       if (!system) {
-        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
           status: 'error',
           message: '課程系統不存在'
         })
@@ -60,7 +60,7 @@ const adminController = {
       const systemId = req.params.id
       const system = await System.findByPk(systemId)
       if (!system) {
-        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
           status: 'error',
           message: '課程系統不存在'
         })
@@ -111,7 +111,7 @@ const adminController = {
       const courseId = req.params.id
       const course = await Course.findByPk(courseId, { raw: true, nest: true, include: [{ model: System, attributes: ['name'] }] })
       if (!course) {
-        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
           status: 'error',
           message: '課程不存在'
         })
@@ -130,7 +130,7 @@ const adminController = {
       const courseId = req.params.id
       const course = await Course.findByPk(courseId)
       if (!course) {
-        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
           status: 'error',
           message: '課程不存在'
         })
@@ -150,7 +150,7 @@ const adminController = {
       const courseId = req.params.id
       const course = await Course.findByPk(courseId)
       if (!course) {
-        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+        return res.status(StatusCodes.NOT_FOUND).json({
           status: 'error',
           message: '課程不存在'
         })
@@ -159,6 +159,63 @@ const adminController = {
       return res.status(StatusCodes.OK).json({
         status: 'success',
         message: '課程已刪除'
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  getUsers: async (req, res, next) => {
+    try {
+      const users = await User.findAll({ raw: true, nest: true, include: [UserInfo] })
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '成功取得所有使用者',
+        data: users
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  getUser: async (req, res, next) => {
+    try {
+      const userId = req.params.id
+      const user = await User.findByPk(userId, { raw: true, nest: true, include: [UserInfo] })
+      if (!user) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          status: 'error',
+          message: '使用者不存在'
+        })
+      }
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '成功取得使用者',
+        data: user
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  setAuthToUser: async (req, res, next) => {
+    try {
+      const userId = req.params.id
+      const user = await User.findByPk(userId)
+      if (!user) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          status: 'error',
+          message: '使用者不存在'
+        })
+      }
+      if (user.email === 'root@example.com') {
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+          status: 'error',
+          message: '不能變更最高管理員權限'
+        })
+      }
+      const updatedUser = await user.update({ isAdmin: !user.isAdmin })
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '成功變更使用者權限',
+        data: updatedUser
       })
     } catch (error) {
       next(error)

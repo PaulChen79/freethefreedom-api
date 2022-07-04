@@ -12,4 +12,8 @@ router.delete('/courses/:id', adminController.deleteCourse)
 router.get('/courses', adminController.getCourses)
 router.post('/courses', adminController.createCourse)
 
+router.get('/users/:id', adminController.getUser)
+router.patch('/users/:id', adminController.setAuthToUser)
+router.get('/users', adminController.getUsers)
+
 module.exports = router

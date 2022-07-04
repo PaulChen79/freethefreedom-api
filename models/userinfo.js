@@ -19,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     igId: DataTypes.STRING,
     lineId: DataTypes.STRING,
     emergencyContact: DataTypes.STRING,
-    emergencyContactPhone: DataTypes.STRING
+    emergencyContactPhone: DataTypes.STRING,
+    userId: DataTypes.INTEGER
   }, {
     sequelize,
     modelName: 'UserInfo',

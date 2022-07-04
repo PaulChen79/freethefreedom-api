@@ -11,7 +11,6 @@ const authenticated = (req, res, next) => {
       })
     }
     req.user = { ...user.dataValues }
-    console.log(req.user)
     next()
   })(req, res, next)
 }
