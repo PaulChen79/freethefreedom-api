@@ -1,15 +1,23 @@
 const express = require('express')
 const router = express.Router()
 const adminController = require('../../controllers/admin-controller')
+const courseController = require('../../controllers/course-controller')
+const scheduleController = require('../../controllers/schedule-controller')
 
 router.put('/systems/:id', adminController.updateSystem)
 router.delete('/systems/:id', adminController.deleteSystem)
 router.post('/systems', adminController.createSystem)
 
-router.get('/courses/:id', adminController.getCourse)
+router.get('/schedules/:id', scheduleController.getSchedule)
+router.put('/schedules/:id', adminController.updateSchedule)
+router.delete('/schedules/:id', adminController.deleteSchedule)
+router.get('/schedules', scheduleController.getSchedule)
+router.post('/schedules', adminController.createSchedule)
+
+router.get('/courses/:id', courseController.getCourse)
 router.put('/courses/:id', adminController.updateCourse)
 router.delete('/courses/:id', adminController.deleteCourse)
-router.get('/courses', adminController.getCourses)
+router.get('/courses', courseController.getCourses)
 router.post('/courses', adminController.createCourse)
 
 router.get('/users/:id', adminController.getUser)

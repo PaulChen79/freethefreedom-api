@@ -94,37 +94,6 @@ const adminController = {
       next(error)
     }
   },
-  getCourses: async (req, res, next) => {
-    try {
-      const courses = await Course.findAll({ raw: true, nest: true, include: [{ model: System, attributes: ['name'] }] })
-      return res.status(StatusCodes.OK).json({
-        status: 'success',
-        message: '成功取得所有課程',
-        data: courses
-      })
-    } catch (error) {
-      next(error)
-    }
-  },
-  getCourse: async (req, res, next) => {
-    try {
-      const courseId = req.params.id
-      const course = await Course.findByPk(courseId, { raw: true, nest: true, include: [{ model: System, attributes: ['name'] }] })
-      if (!course) {
-        return res.status(StatusCodes.NOT_FOUND).json({
-          status: 'error',
-          message: '課程不存在'
-        })
-      }
-      return res.status(StatusCodes.OK).json({
-        status: 'success',
-        message: '成功取得課程',
-        data: { course }
-      })
-    } catch (error) {
-      next(error)
-    }
-  },
   updateCourse: async (req, res, next) => {
     try {
       const courseId = req.params.id
@@ -268,13 +237,13 @@ const adminController = {
       if (!schedule) {
         return res.status(StatusCodes.NOT_FOUND).json({
           status: 'error',
-          message: '課程不存在'
+          message: '開課資訊不存在'
         })
       }
       await schedule.destroy()
       return res.status(StatusCodes.OK).json({
         status: 'success',
-        message: '課程已刪除'
+        message: '開課資訊已刪除'
       })
     } catch (error) {
       next(error)
