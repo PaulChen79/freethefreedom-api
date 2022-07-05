@@ -10,7 +10,7 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate (models) {
-      System.hasMany(models.Course, { foreignKey: 'systemId' })
+      System.hasMany(models.Course, { foreignKey: 'systemId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
     }
   }
   System.init({

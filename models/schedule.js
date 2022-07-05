@@ -10,10 +10,12 @@ module.exports = (sequelize, DataTypes) => {
      * The `models/index` file will call this method automatically.
      */
     static associate (models) {
-      Schedule.belongsTo(models.Course, { foreignKey: 'courseId' })
+      Schedule.belongsTo(models.Course, { foreignKey: 'courseId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
       Schedule.belongsToMany(models.User, {
         through: models.ReservedSchedule,
         foreignKey: 'scheduleId',
+        onDelete: 'CASCADE',
+        onUpdate: 'CASCADE',
         as: 'UserReservedSchedules'
       })
     }

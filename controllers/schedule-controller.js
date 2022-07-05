@@ -3,7 +3,6 @@ const { StatusCodes } = require('http-status-codes')
 
 const scheduleController = {
   getSchedules: async (req, res, next) => {
-    console.log(req.user)
     if (req.user) {
       try {
         let schedules = await Schedule.findAll({

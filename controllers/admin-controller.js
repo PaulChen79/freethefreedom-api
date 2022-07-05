@@ -1,4 +1,4 @@
-const { System, Course, User, UserInfo } = require('../models')
+const { System, Course, User, UserInfo, Schedule } = require('../models')
 const { StatusCodes } = require('http-status-codes')
 
 const adminController = {
@@ -216,6 +216,65 @@ const adminController = {
         status: 'success',
         message: '成功變更使用者權限',
         data: updatedUser
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  createSchedule: async (req, res, next) => {
+    try {
+      const { name } = req.body
+      const schedule = await Schedule.findOne({ where: { name } })
+      if (schedule) {
+        return res.status(StatusCodes.NOT_ACCEPTABLE).json({
+          status: 'error',
+          message: '開課資訊已存在'
+        })
+      }
+      const newSchedule = await Schedule.create(req.body)
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '開課資訊已創建',
+        data: { course: newSchedule }
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  updateSchedule: async (req, res, next) => {
+    try {
+      const scheduleId = req.params.id
+      const schedule = await Schedule.findByPk(scheduleId)
+      if (!schedule) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          status: 'error',
+          message: '開課資訊不存在'
+        })
+      }
+      const updateSchedule = await schedule.update(req.body)
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '成功編輯開課資訊',
+        data: { schedule: updateSchedule }
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  deleteSchedule: async (req, res, next) => {
+    try {
+      const scheduleId = req.params.id
+      const schedule = await Schedule.findByPk(scheduleId)
+      if (!schedule) {
+        return res.status(StatusCodes.NOT_FOUND).json({
+          status: 'error',
+          message: '課程不存在'
+        })
+      }
+      await schedule.destroy()
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        message: '課程已刪除'
       })
     } catch (error) {
       next(error)
