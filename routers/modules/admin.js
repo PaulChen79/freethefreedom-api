@@ -11,7 +11,7 @@ router.post('/systems', adminController.createSystem)
 router.get('/schedules/:id', scheduleController.getSchedule)
 router.put('/schedules/:id', adminController.updateSchedule)
 router.delete('/schedules/:id', adminController.deleteSchedule)
-router.get('/schedules', scheduleController.getSchedule)
+router.get('/schedules', scheduleController.getSchedules)
 router.post('/schedules', adminController.createSchedule)
 
 router.get('/courses/:id', courseController.getCourse)
