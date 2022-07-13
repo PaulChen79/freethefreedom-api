@@ -1,7 +1,9 @@
-const { User, UserInfo } = require('../models')
+const { User, UserInfo, Token } = require('../models')
 const bcrypt = require('bcryptjs')
 const { StatusCodes } = require('http-status-codes')
 const jwt = require('jsonwebtoken')
+const crypto = require('crypto')
+const { sendMail } = require('../utils/nodemailer')
 
 const userController = {
   register: async (req, res, next) => {
@@ -69,10 +71,19 @@ const userController = {
 
       const hashedPassword = await bcrypt.hash(password, 10)
       const user = await User.create({ username, email, password: hashedPassword })
+
+      const token = await Token.create({
+        userId: user.id,
+        token: crypto.randomBytes(32).toString('hex')
+      })
+
+      const verificationURL = `http://localhost:3000/verify/${user.id}/${token.token}`
+
+      await sendMail(user.email, verificationURL)
       return res.status(StatusCodes.OK)
         .json({
           status: 'success',
-          message: '註冊成功',
+          message: '註冊成功, 請至信箱收取驗證信',
           data: { user }
         })
     } catch (error) {
@@ -170,6 +181,37 @@ const userController = {
         status: 'success',
         message: '成功編輯使用者資訊',
         data: updateUserData
+      })
+    } catch (error) {
+      next(error)
+    }
+  },
+  verifyEmail: async (req, res, next) => {
+    try {
+      const userId = req.params.id
+      const user = await User.findByPk(userId)
+      if (!user) {
+        return res.status(StatusCodes.NOT_ACCEPTABLE)
+          .json({
+            status: 'error',
+            message: '使用者不存在'
+          })
+      }
+      const token = await Token.findOne({ where: { userId, token: req.params.token } })
+      if (!token) {
+        return res.status(StatusCodes.NOT_ACCEPTABLE)
+          .json({
+            status: 'error',
+            message: '驗證碼不存在'
+          })
+      }
+
+      await user.update({ verified: true })
+      await token.destroy()
+
+      return res.status(StatusCodes.OK).json({
+        status: 'success',
+        messgae: '信箱驗證成功'
       })
     } catch (error) {
       next(error)

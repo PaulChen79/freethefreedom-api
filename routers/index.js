@@ -21,6 +21,8 @@ router.get('/schedules', checkIfUser, scheduleController.getSchedules)
 router.use('/users', authenticated, user)
 router.use('/admin', authenticated, authenticatedAdmin, admin)
 
+router.get('/verify/:id/:token', userController.verifyEmail)
+
 router.use('/', generalErrorHandler)
 
 module.exports = router

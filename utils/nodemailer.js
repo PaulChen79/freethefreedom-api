@@ -1,6 +1,6 @@
 const nodemailer = require('nodemailer')
 
-const sendMail = async (mailTo, subject, verificationURL, next) => {
+const sendMail = async (mailTo, verificationURL) => {
   try {
     const transporter = nodemailer.createTransport({
       service: 'gmail',
@@ -13,11 +13,11 @@ const sendMail = async (mailTo, subject, verificationURL, next) => {
     await transporter.sendMail({
       from: process.env.GMAIL_USER,
       to: mailTo,
-      subject: subject,
+      subject: 'Email verification',
       text: `Please click this url to verify your email: ${verificationURL}`
     })
   } catch (error) {
-    next(error)
+    throw new Error(error)
   }
 }
 

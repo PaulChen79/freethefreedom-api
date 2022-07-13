@@ -6,6 +6,7 @@ module.exports = (sequelize, DataTypes) => {
   class User extends Model {
     static associate (models) {
       User.hasOne(models.UserInfo, { foreignKey: 'userId', onDelete: 'CASCADE', onUpdate: 'CASCADE' })
+      User.hasMany(models.Token, { foreignKey: 'userId' })
       User.belongsToMany(models.Schedule, {
         through: models.ReservedSchedule,
         foreignKey: 'userId',
@@ -19,7 +20,8 @@ module.exports = (sequelize, DataTypes) => {
     username: DataTypes.STRING,
     email: DataTypes.STRING,
     password: DataTypes.STRING,
-    isAdmin: DataTypes.BOOLEAN
+    isAdmin: DataTypes.BOOLEAN,
+    verified: DataTypes.BOOLEAN
   }, {
     sequelize,
     modelName: 'User',
