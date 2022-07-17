@@ -1,15 +1,23 @@
 const { System, Course } = require('../models')
 const { StatusCodes } = require('http-status-codes')
+const NodeCache = require('node-cache')
+
+const routeCache = new NodeCache({ stdTTL: 60 })
 
 const courseController = {
   getCourses: async (req, res, next) => {
     try {
+      if (routeCache.has('allCourses')) {
+        return res.status(StatusCodes.OK).json(routeCache.get('allCourses'))
+      }
       const courses = await Course.findAll({ raw: true, nest: true, include: [{ model: System, attributes: ['name'] }] })
-      return res.status(StatusCodes.OK).json({
+      const value = {
         status: 'success',
         message: '成功取得所有課程',
         data: courses
-      })
+      }
+      routeCache.set('allCourses', value)
+      return res.status(StatusCodes.OK).json(value)
     } catch (error) {
       next(error)
     }
