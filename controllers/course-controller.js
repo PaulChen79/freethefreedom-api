@@ -25,6 +25,9 @@ const courseController = {
   getCourse: async (req, res, next) => {
     try {
       const courseId = req.params.id
+      if (routeCache.has(`course ${courseId}`)) {
+        return res.status(StatusCodes.OK).json(routeCache.get(`course ${courseId}`))
+      }
       const course = await Course.findByPk(courseId, { raw: true, nest: true, include: [{ model: System, attributes: ['name'] }] })
       if (!course) {
         return res.status(StatusCodes.NOT_FOUND).json({
@@ -32,11 +35,13 @@ const courseController = {
           message: '課程不存在'
         })
       }
-      return res.status(StatusCodes.OK).json({
+      const value = {
         status: 'success',
         message: '成功取得課程',
         data: { course }
-      })
+      }
+      routeCache.set(`course ${courseId}`, value)
+      return res.status(StatusCodes.OK).json(value)
     } catch (error) {
       next(error)
     }
