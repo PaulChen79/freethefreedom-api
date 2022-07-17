@@ -121,6 +121,13 @@ const userController = {
           })
       }
 
+      if (!user.verified) {
+        return res.status(StatusCodes.UNAUTHORIZED).json({
+          status: 'error',
+          message: '請先驗證你的Email'
+        })
+      }
+
       const payload = {
         id: user.id,
         isAdmin: user.isAdmin
